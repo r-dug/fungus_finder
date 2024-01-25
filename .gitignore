@@ -2,3 +2,5 @@
 DATASETS/
 
 # Ignored files
+./TRAINING/Transfer_MobileNet_v1_fungus_test.py
+./TRAINING/retrain_FungiNetV1.py
