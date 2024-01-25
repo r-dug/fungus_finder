@@ -26,3 +26,33 @@ Methodology:
 4) Analyze results.
 '''
 import os
+import sys
+
+usage_string = """
+Usage: 
+> python3 reorg.py [integer corresponding to level of taxonomic rank to sort files into]
+Taxon rank levels:
+1 - Kingdom
+2 - Phylum
+3 - Class
+4 - Order
+5 - Family
+6 - Genus
+7 - Species
+"""
+taxon_rank = int(sys.argv[1])
+dirlist = []
+for root, dirs, files in os.walk("./DATASETS/train/",topdown=True):
+    for dir in dirs:
+        taxon = dir.split('_')[taxon_rank]
+        if taxon not in dirlist:
+            dirlist.append(taxon)
+            os.system(f"mkdir {root}{taxon}")
+        os.system(f"mv {root}{dir} {root}{taxon}")
+        continue
+print(dirlist)
+if __name__ == "__main__":
+
+    if len(sys.argv) < 2:
+        print()
+        exit()

@@ -10,7 +10,6 @@
 # Packages
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 import sys
 import tensorflow as tf
 import tensorflow.keras.layers as tfl
@@ -19,7 +18,15 @@ from datetime import datetime
 
 from tensorflow.keras.preprocessing import image_dataset_from_directory
 from tensorflow.keras.layers.experimental.preprocessing import RandomFlip, RandomRotation
-
+rank = {'1': 'Kingdom',
+'2': 'Phylum',
+'3': 'Class',
+'4': 'Order',
+'5': 'Family',
+'6': 'Genus',
+'7': 'Species'}
+taxonomic_rank = rank[sys.argv[1]]
+print(taxonomic_rank)
 banner = '\n\n'+'*'*100+'\n\n'
 tf.debugging.set_log_device_placement(True)
 gpus = tf.config.list_physical_devices('GPU')
@@ -47,9 +54,9 @@ def plot_performance(phase, acc, val_acc, loss, val_loss):
     plt.legend(loc='upper right')
     plt.ylabel('Cross Entropy')
     plt.ylim([0,2])
-    plt.title('Training and Validation Loss')
+    plt.title(f'{taxonomic_rank}\nTraining and Validation Performance\nfor {phase}')
     plt.xlabel('epoch')
-    plt.savefig(f"./../PERFORMANCE/{datetime.now()}_{phase}.png")
+    plt.savefig(f"./../PERFORMANCE/{datetime.now()}_{phase}{taxonomic_rank}.png")
 
 def data_augmenter():
     '''
@@ -134,7 +141,7 @@ def fungus_model(image_shape=IMG_SIZE, data_augmentation=data_augmenter()):
     x = tfl.Dropout(0.2)(x)
         
     # use a prediction layer with one neuron (as a binary classifier only needs one)
-    outputs = tfl.Dense(10000, activation='softmax')(x)
+    outputs = tfl.Dense(3, activation='softmax')(x)
         
     model = tf.keras.Model(inputs, outputs)
     
@@ -177,7 +184,7 @@ with tf.device('/GPU:0'):
     # print(banner)
     input("Press enter to continue")
 
-    # # Now let's take a look at some of the images from the training set: 
+    # # Option to look at some of the images from the training set: 
     # plt.figure(figsize=(10, 10))
     # for images, labels in train_dataset.take(1):
     #     for i in range(9):
@@ -190,7 +197,7 @@ with tf.device('/GPU:0'):
     # ## 2 - Preprocess and Augment Training Data
     train_dataset = train_dataset.prefetch(buffer_size=AUTOTUNE)
 
-    # # Take a look at how an image from the training set has been augmented with
+    # # Option to look at how an image from the training set has been augmented with
     # # transformations:
 
     # for image, label in train_dataset.take(1):
@@ -205,10 +212,9 @@ with tf.device('/GPU:0'):
     #             plt.axis('off')
     #         plt.show()
 
-    # # Next, you'll apply your first tool from the MobileNet application in
-    # # TensorFlow, to normalize your input. Since you're using a pre-trained model
+    # # Use TensorFlow, to normalize your input. Since using a pre-trained model
     # # that was trained on the normalization values [-1,1], it's best practice to
-    # # reuse that standard with tf.keras.applications.mobilenet_v2.preprocess_input.
+    # # reuse that standard with tf.keras.applications.mobilenet_v3.preprocess_input.
     print(f"{banner}preprocessing input...{banner}")
     start = time.time()
     preprocess_input = tf.keras.applications.mobilenet_v3.preprocess_input
@@ -224,17 +230,11 @@ with tf.device('/GPU:0'):
     print(f"{banner} base model established in {time.time()-start} seconds{banner}")
 
 
-    # # Print the model summary below to see all the model's layers, the shapes of
+    # # Save the model summary below to see all the model's layers, the shapes of
     # # their outputs, and the total number of parameters, trainable and 
     # # non-trainable. 
     with open(f"./../MODEL SUMMARIES.{datetime.now()}base_model_summary.txt", 'w', encoding='utf-8') as file:
         print(base_model.summary(), file = file)
-
-    # # Note the last 2 layers here. They are the so called top layers, and they are
-    # # responsible of the classification in the model
-    # nb_layers = len(base_model.layers)
-    # print(base_model.layers[nb_layers - 2].name)
-    # print(base_model.layers[nb_layers - 1].name)
 
 
     # # Notice some of the layers in the summary like `Conv2D` and `DepthwiseConv2D`
@@ -332,7 +332,3 @@ with tf.device('/GPU:0'):
     pred = model2.predict(image_var)
     pred = np.argmax(pred[0])
     print(pred)
-
-    print(history_fine.history.keys())
-
-    # # That's awesome! 

@@ -26,14 +26,14 @@ def fungal_lists():
     # # this loop cleaned up superfluous "scraped" directories.
     # # we no longer want this to happen, but it's kind of good code snippet to 
     # to let hang around.
-    for root,dirs,files in os.walk("./fungi/",topdown=True):
+    for root,dirs,files in os.walk("./../DATASETS/train/",topdown=True):
         for dir in dirs:
             if not "not_fungi" in root:
                 
                 if "scraped" in root:
                     os.system(f"rm -r {root}/{dir}")
 
-    for root,dirs,files in os.walk("./fungi/",topdown=True):
+    for root,dirs,files in os.walk("./../DATASETS/train/",topdown=True):
         for dir in dirs:
 
             if not "not_fungi" in root and dir != "not_fungi" and dir != "scraped":
